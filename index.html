@@ -338,6 +338,11 @@
   #overlay .credits .row:last-child { border-bottom: 1px solid rgba(0,0,0,0.12); }
   #overlay .credits .k { color: var(--ink-soft); }
   #overlay .credits .v { color: var(--ink); }
+  /* about page: same voice as project copy, centred column (random-style) */
+  #overlay .section-text.about {
+    max-width: min(760px, 78%);
+    margin: 0 auto var(--page-gap);
+  }
   /* smaller reading copy (about page) */
   #overlay .section-text.small {
     font-size: 16px;
@@ -1477,8 +1482,7 @@ function openAbout(push = true) {
   showPage(
     `<div class="topline"><h1>About</h1>` +
     `<span class="client">London, UK</span></div>` +
-    mediaBlock(null, "linear-gradient(135deg,#f9ddc0,#eebfce 55%,#c5bcf0)") +
-    `<div class="section-text small">${SETTINGS.about}</div>`);
+    `<div class="section-text about">${SETTINGS.about}</div>`);
   setActive(navAbout);
   if (push) location.hash = "/about";
 }
