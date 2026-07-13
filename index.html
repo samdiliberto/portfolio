@@ -1434,6 +1434,7 @@ function showPage(html) {
 /* header slides away on scroll down, returns on scroll up */
 let lastScrollY = 0;
 overlay.addEventListener("scroll", () => {
+  if (!overlay.classList.contains("show")) return;   // only while a page is open
   const y = overlay.scrollTop;
   const header = document.querySelector("header");
   if (y > lastScrollY + 6 && y > 120) header.classList.add("hidden");
@@ -1469,6 +1470,7 @@ function closePage(clearHash = true) {
   currentSlug = "";
   overlay.classList.remove("show");
   document.body.classList.remove("page-open");
+  document.querySelector("header").classList.remove("hidden");  // always back on home
   setActive(navWork);
   if (clearHash && location.hash)
     history.pushState(null, "", location.pathname);
