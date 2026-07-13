@@ -1113,8 +1113,6 @@ const LAYERS = [
           when using the client's desired AI workflow.</p>` },
         { type: "media", align: "center", src: "images/xsolla/18-Community-Tokens.png" },
         { type: "grid", cols: 3, srcs: [
-          "images/xsolla/STILL_OBJ/CLIP_01.png",
-          "images/xsolla/STILL_OBJ/CLIP_02.png",
           "images/xsolla/STILL_OBJ/JUKE_01.png",
           "images/xsolla/STILL_OBJ/JUKE_02.png",
           "images/xsolla/STILL_OBJ/JUKE_03.png",
@@ -1136,6 +1134,8 @@ const LAYERS = [
           "images/xsolla/STILL_OBJ/TUBE_01.png",
           "images/xsolla/STILL_OBJ/TUBE_02.png",
           "images/xsolla/STILL_OBJ/TUBE_03.png",
+          "images/xsolla/STILL_OBJ/CLIP_01.png",
+          "images/xsolla/STILL_OBJ/CLIP_02.png",
         ] },
         { type: "grid", cols: 2, srcs: [
           "images/xsolla/15-Tickets.jpg",
@@ -1325,13 +1325,22 @@ function hideDetail() {
        { type: "grid",  srcs: ["e.jpg", "f.jpg", "g.jpg"] }  // equal columns
      ]
    Omit `src`/use null in srcs to show the project gradient instead. */
+/* only these clips contain an audio track — everything else stays buttonless */
+const HAS_SOUND = new Set([
+  "images/on/D-AD-FINAL-FILM.mp4",
+  "images/lunara/Comp-1_2.mp4",
+  "images/spaces/CI_003_SDxNK_4x5_v11.mp4",
+  "images/taste/250915_NK_386_CI006_fractals_v06 (2).mp4",
+  "images/degree_show/Degree-Show-Announcement-Video-16x9.mp4",
+]);
+
 function mediaBlock(src, gradient, sound) {
   let inner;
   if (!src)
     inner = `<div class="grad" style="background:${gradient}"></div>`;
   else if (/\.(mov|mp4|webm)$/i.test(src)) {
     inner = `<video src="${encodeURI(src)}" autoplay loop muted playsinline></video>`;
-    if (sound)
+    if (sound && HAS_SOUND.has(src))
       inner += `<button class="sound-btn" onclick="toggleSound(this)">Sound</button>`;
   }
   else
