@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samuel Di Liberto — Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Figtree:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — tweak the whole look from here
+     ============================================================ */
+  :root {
+    --bg: #f3f3f3;                            /* clean flat neutral background */
+    --card-bg: #ffffff;
+    --card-border: #e4e4e1;
+    --card-border-hover: #c9c9c5;
+    --ink: #161616;
+    --ink-soft: #6f6f6c;
+    --line: rgba(210, 96, 80, 0.45);           /* bezier connection colour */
+    --line-hover: rgba(210, 96, 80, 0.95);
+    /* gradient (header bars + wires) — #BBE8F9 → #C0FFB3 */
+    --bar-gradient: linear-gradient(90deg, #BBE8F9, #C0FFB3);
+    --radius: 0px;                             /* sharp square edges throughout */
+    --node-size: 160px;
+    --node-pad: 5px;                           /* gutter inside each neuron */
+    --font: "Helvetica Neue", Helvetica, Arial, sans-serif;       /* headings / site */
+    --font-card: "Aspekta", "Inter", "Helvetica Neue", sans-serif; /* card text */
+    --font-page: "Aspekta", "Figtree", "Helvetica Neue", sans-serif; /* work pages */
+    --page-gap: clamp(90px, 14vh, 160px);      /* equidistant section rhythm */
+  }
+
+  /* Aspekta — the face from the mockups (files in ./fonts/) */
+  @font-face {
+    font-family: "Aspekta";
+    src: url("fonts/Aspekta-300.ttf") format("truetype");
+    font-weight: 300;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aspekta";
+    src: url("fonts/Aspekta-400.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aspekta";
+    src: url("fonts/Aspekta-500.ttf") format("truetype");
+    font-weight: 500;
+    font-display: swap;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--bg);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============================================================
+     HEADER — swiss rules between items
+     ============================================================ */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+    gap: 24px;
+    z-index: 200;                /* stays on top of work pages */
+    background: var(--bg);
+    transition: transform .35s ease;
+  }
+  header.hidden { transform: translateY(-100%); }
+  header .rule {
+    flex: 1;
+    height: 3px;
+    border-radius: 0;              /* square ends */
+    background: var(--bar-gradient);
+  }
+  header .rule.short { flex: 0.35; }
+  header a, header span.name {
+    font-family: var(--font-page);   /* same face as the copy, just smaller */
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    color: var(--ink);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  /* subtle grey pill — hover + active selection indicator */
+  header a {
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: background .2s;
+  }
+  header a:hover { background: rgba(0,0,0,0.045); }
+  header a.active { background: rgba(0,0,0,0.06); }
+
+  /* ============================================================
+     NETWORK STAGE
+     ============================================================ */
+  #stage {
+    position: absolute;
+    inset: 72px 0 0 0;
+  }
+  #wires {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  /* wires pick up the nav-bar gradient across the stage */
+  #wires path {
+    fill: none;
+    stroke: url(#wireGrad);
+    stroke-width: 1.25;
+    opacity: 0.55;
+    transition: opacity .25s, stroke-width .25s;
+  }
+  #wires path.lit {
+    opacity: 1;
+    stroke-width: 2;
+  }
+
+  /* ============================================================
+     NEURON CARDS — flat, no drop shadow
+     ============================================================ */
+  .neuron {
+    position: absolute;
+    width: var(--node-size);
+    height: var(--node-size);
+    cursor: pointer;
+    animation: float 6s ease-in-out infinite;
+    will-change: transform;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-7px); }
+  }
+  /* full-bleed image card, generous radius (twelvelabs-style) */
+  .neuron .card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform .3s;
+  }
+  .neuron:hover .card {
+    transform: translateY(-3px);
+  }
+  /* title as a thin outlined pill on the image */
+  .neuron .head {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    max-width: calc(100% - 20px);
+    z-index: 2;
+  }
+  .neuron .head .t {
+    font-family: var(--font-card);
+    font-size: 9.5px;
+    letter-spacing: -0.015em;
+    line-height: 1.4;
+    color: rgba(25,25,25,0.85);
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 4px 10px;
+    border: 1px solid rgba(25,25,25,0.6);
+    border-radius: 0;
+    white-space: normal;          /* long titles wrap, no ellipsis */
+    transition: color .3s, border-color .3s;
+  }
+  /* set automatically when the image behind the title is dark */
+  .neuron.dark-img .head .t {
+    color: rgba(255,255,255,0.95);
+    border-color: rgba(255,255,255,0.7);
+  }
+  .neuron .head .n { display: none; }
+  .neuron .thumb {
+    position: absolute;
+    inset: 0;
+  }
+  .neuron .thumb img,
+  .neuron .thumb .grad {
+    position: absolute;
+    inset: -12px;                 /* bleed so the blur has no hard edge */
+    width: calc(100% + 24px);
+    height: calc(100% + 24px);
+    object-fit: cover;
+    filter: blur(7px);
+  }
+  /* ============================================================
+     HOVER DETAIL CARD — bottom left
+     ============================================================ */
+  #detail {
+    position: fixed;
+    left: 40px;
+    bottom: 40px;
+    width: 260px;
+    font-family: var(--font-card);
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 8px;
+    z-index: 60;
+    opacity: 0;
+    transform: translateY(16px);
+    pointer-events: none;
+    transition: opacity .3s ease, transform .3s ease;
+  }
+  #detail.show { opacity: 1; transform: translateY(0); }
+  #detail .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 12px 12px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  #detail .head .t {
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+  }
+  #detail .head .n {
+    font-size: 26px;
+    font-weight: 200;
+    color: rgba(30,30,30,0.4);
+    flex-shrink: 0;
+  }
+  #detail .img {
+    position: relative;
+    height: 260px;
+    margin-top: 8px;
+    border-radius: calc(var(--radius) - 4px);
+    overflow: hidden;
+  }
+  #detail .img img, #detail .img .grad {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  #detail .desc {
+    padding: 14px 12px;
+    font-size: 11.5px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    letter-spacing: 0.01em;
+  }
+
+  /* ============================================================
+     PROJECT OVERLAY — click to expand
+     ============================================================ */
+  #overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 90;                 /* sits under the header — nav stays visible */
+    background: var(--bg);
+    display: none;
+    overflow-y: auto;
+  }
+  #overlay.show { display: block; }
+  /* home network is hidden while a page is open — feels like navigation */
+  body.page-open #stage, body.page-open #detail { display: none; }
+  #overlay .inner {
+    font-family: var(--font-page);
+    /* flush-left like the home page — no centring */
+    padding: 0 40px 60px;
+  }
+  /* title left, client caption on the 82% grid column */
+  #overlay .topline {
+    position: relative;
+    padding-top: 30vh;
+    /* title → body gap, as per design */
+    margin-bottom: clamp(90px, 11vh, 120px);
+  }
+  #overlay .topline h1 {
+    font-size: clamp(20px, 2.8vw, 38px);   /* same size as body copy */
+    font-weight: 300;                      /* cohesive with body — not bold */
+    letter-spacing: -0.02em;               /* -2%, same as body */
+    line-height: 1.05;
+    color: #000;
+  }
+  #overlay .topline .client {
+    position: absolute;
+    left: 82%;
+    bottom: 0.35em;
+    font-size: 13px;
+    letter-spacing: 0;                 /* captions: 0% tracking */
+    color: var(--ink-soft);
+  }
+  /* body copy — random.studio scale, -1% tracking, full black */
+  #overlay .section-text {
+    font-size: clamp(20px, 2.8vw, 38px);
+    font-weight: 300;
+    line-height: 1.26;
+    letter-spacing: -0.02em;
+    color: #000;
+    max-width: 86%;
+    margin: 0 0 var(--page-gap);
+  }
+  #overlay .section-text strong { font-weight: 500; }
+  #overlay .section-text p + p { margin-top: 1em; }
+  #overlay .section-text a { color: var(--ink); }
+  /* section heading line inside a text block (random.studio-style) */
+  #overlay .sec-head {
+    display: block;
+    font-weight: 400;
+    margin-bottom: 0.55em;
+  }
+  /* credits list — For / Year / Role / With */
+  #overlay .credits {
+    max-width: 640px;
+    margin: 0 0 var(--page-gap);
+    font-size: 13px;
+    line-height: 1.6;
+    letter-spacing: 0;
+  }
+  #overlay .credits .row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 20px;
+    padding: 12px 0;
+    border-top: 1px solid rgba(0,0,0,0.12);
+  }
+  #overlay .credits .row:last-child { border-bottom: 1px solid rgba(0,0,0,0.12); }
+  #overlay .credits .k { color: var(--ink-soft); }
+  #overlay .credits .v { color: var(--ink); }
+  /* smaller reading copy (about page) */
+  #overlay .section-text.small {
+    font-size: 16px;
+    line-height: 1.8;
+    letter-spacing: -0.01em;
+    color: var(--ink-soft);
+    max-width: 640px;
+  }
+  /* full-width media blocks */
+  #overlay .media {
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 var(--page-gap);
+    background: transparent;      /* media sits directly on the page bg */
+  }
+  #overlay .media img,
+  #overlay .media video { display: block; width: 100%; height: auto; }
+  /* standalone media (not the bleed hero, not grid tiles): always fully
+     visible on screen — never taller than the viewport, never cropped */
+  #overlay .inner > .media:not(.bleed) img,
+  #overlay .inner > .media:not(.bleed) video {
+    width: auto;
+    max-width: 100%;
+    max-height: 86vh;
+    margin: 0 auto;
+  }
+  /* dynamic rhythm: standalone media alternates left / right */
+  #overlay .inner > .media.alt-left img,
+  #overlay .inner > .media.alt-left video { margin-left: 0; }
+  #overlay .inner > .media.alt-right img,
+  #overlay .inner > .media.alt-right video { margin-right: 0; }
+  #overlay .media .grad { display: block; width: 100%; height: 64vh; }
+  /* sound toggle on videos */
+  .sound-btn {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    z-index: 3;
+    font: 400 11px/1 var(--font-card, sans-serif);
+    letter-spacing: 0.06em;
+    padding: 8px 14px;
+    color: #fff;
+    background: rgba(20, 20, 20, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .sound-btn:hover, .sound-btn.on { background: rgba(20, 20, 20, 0.6); }
+  /* full-bleed: breaks out of the container to viewport edges */
+  #overlay .media.bleed {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+  /* hero: full bleed to the sides at natural ratio (no crop) */
+  #overlay .media.bleed img,
+  #overlay .media.bleed video {
+    width: 100%;
+    height: auto;
+  }
+  /* opt-in banner crop for tall/square heroes (heroCrop: true) */
+  #overlay .media.bleed.crop img,
+  #overlay .media.bleed.crop video {
+    height: 88vh;
+    object-fit: cover;
+  }
+  #overlay .media.bleed .grad { height: 86vh; }
+  /* equal-column grid */
+  #overlay .media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 28px;
+    margin: 0 0 var(--page-gap);
+  }
+  #overlay .media-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  #overlay .media-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  #overlay .media-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  #overlay .media-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+  /* cols-6: tiles sized as a 6-column grid, but the outer columns are
+     removed — 4 tiles per row, inset by one tile-width on each side,
+     extra tiles wrapping onto new rows at the same size */
+  #overlay .media-grid.cols-6 {
+    grid-template-columns: repeat(4, 1fr);
+    padding: 0 calc((100% + 14px) / 6);
+  }
+  /* denser gutters on gallery grids */
+  #overlay .media-grid.cols-3, #overlay .media-grid.cols-4 { gap: 20px; }
+  #overlay .media-grid.cols-5, #overlay .media-grid.cols-6 { gap: 14px; }
+  /* gallery tiles are uniform squares — odd ratios crop to fit */
+  #overlay .media-grid.cols-3 .media img, #overlay .media-grid.cols-3 .media video,
+  #overlay .media-grid.cols-4 .media img, #overlay .media-grid.cols-4 .media video,
+  #overlay .media-grid.cols-5 .media img, #overlay .media-grid.cols-5 .media video,
+  #overlay .media-grid.cols-6 .media img, #overlay .media-grid.cols-6 .media video {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    object-fit: cover;
+  }
+  #overlay .media-grid .media { margin: 0; }
+  #overlay .media-grid .media .grad { height: 340px; }
+  /* staggered pair (random.studio-style) —
+     first image large at top-left, second smaller and lower right */
+  #overlay .media-duo {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 28px;
+    align-items: start;
+    margin: 0 0 var(--page-gap);
+  }
+  #overlay .media-duo .media { margin: 0; background: transparent; }
+  /* fully visible: never taller than the viewport, keep natural ratio */
+  #overlay .media-duo .media img,
+  #overlay .media-duo .media video {
+    width: auto;
+    max-width: 100%;
+    max-height: 88vh;
+  }
+  /* pair stays together: large from the left edge, small right beside it */
+  #overlay .media-duo .media:nth-child(1) {
+    grid-column: 1 / 7;
+    margin-left: -40px;            /* touches the left edge */
+  }
+  #overlay .media-duo .media:nth-child(2) {
+    grid-column: 7 / 12;
+    margin-top: 14vh;
+  }
+  #overlay .media-duo .media:nth-child(1) .grad { height: 74vh; }
+  #overlay .media-duo .media:nth-child(2) .grad { height: 50vh; }
+  /* flip: mirrored — large from the right edge, small beside it lower */
+  #overlay .media-duo.flip .media:nth-child(1) {
+    grid-column: 7 / 13;
+    order: 2;
+    margin-left: 0;
+    margin-right: -40px;
+  }
+  #overlay .media-duo.flip .media:nth-child(1) img,
+  #overlay .media-duo.flip .media:nth-child(1) video { margin-left: auto; }
+  #overlay .media-duo.flip .media:nth-child(2) {
+    grid-column: 2 / 7;
+    margin-top: 14vh;
+    order: 1;
+  }
+  #overlay .media-duo.flip .media:nth-child(2) img,
+  #overlay .media-duo.flip .media:nth-child(2) video { margin-left: auto; }
+  /* next-project footer */
+  #overlay .next {
+    margin-top: 96px;
+    border-top: 1px solid var(--ink);
+    padding-top: 22px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  #overlay .next .label {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  #overlay .next a {
+    font-size: clamp(22px, 2.5vw, 34px);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  #overlay .next a:hover { opacity: 0.45; }
+  #overlay .close {
+    position: fixed;
+    top: 26px;
+    right: 40px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: var(--font);
+    color: var(--ink);
+  }
+  #overlay .close:hover { opacity: 0.45; }
+
+  /* ============================================================
+     MOBILE — the neural network is replaced by a tendril-style
+     stacked index: full-width media + small caption row
+     ============================================================ */
+  #mobile-home { display: none; }
+  @media (max-width: 820px) {
+    #stage, #detail { display: none; }
+    header { padding: 0 16px; gap: 10px; }
+    header a, header span.name { font-size: 12px; }
+    header a { padding: 5px 9px; }
+
+    #mobile-home {
+      display: block;
+      position: absolute;
+      inset: 72px 0 0 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 10px 16px 60px;
+    }
+    .m-tile { margin-bottom: 44px; cursor: pointer; }
+    .m-tile .m-media img,
+    .m-tile .m-media .grad {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      height: auto;
+      object-fit: cover;
+    }
+    .m-cap {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-top: 10px;
+      font-family: var(--font-page);
+    }
+    .m-cap .m-t { font-size: 14px; letter-spacing: -0.01em; color: var(--ink); }
+    .m-cap .m-c { font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+
+    /* work pages relax onto a single column */
+    #overlay .inner { padding: 0 16px 48px; }
+    #overlay .topline { padding-top: 18vh; margin-bottom: 64px; }
+    #overlay .topline .client { position: static; display: block; margin-top: 10px; }
+    #overlay .section-text { max-width: 100%; }
+    #overlay .inner > .media:not(.bleed) img,
+    #overlay .inner > .media:not(.bleed) video {
+      width: 100%;
+      max-height: none;
+    }
+    #overlay .media-duo { display: block; }
+    #overlay .media-duo .media:nth-child(1),
+    #overlay .media-duo .media:nth-child(2),
+    #overlay .media-duo.flip .media:nth-child(1),
+    #overlay .media-duo.flip .media:nth-child(2) {
+      margin: 0 0 20px;
+    }
+    #overlay .media-duo .media img,
+    #overlay .media-duo .media video {
+      width: 100%;
+      max-height: none;
+      margin: 0;
+    }
+    #overlay .media-grid.cols-3,
+    #overlay .media-grid.cols-4,
+    #overlay .media-grid.cols-5 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    #overlay .media-grid.cols-6 { grid-template-columns: repeat(2, 1fr); padding: 0; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="rule short"></div>
+  <span class="name">Samuel Di Liberto</span>
+  <div class="rule"></div>
+  <a id="nav-work">Work</a>
+  <div class="rule"></div>
+  <a id="nav-about">About</a>
+  <div class="rule"></div>
+  <a id="nav-code" target="_blank" rel="noopener">Code</a>
+  <div class="rule short"></div>
+</header>
+
+<div id="stage">
+  <svg id="wires">
+    <defs>
+      <!-- same sweep as the nav bars, stretched across the stage -->
+      <linearGradient id="wireGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1400" y2="0">
+        <stop offset="0%"   stop-color="#BBE8F9"/>
+        <stop offset="100%" stop-color="#C0FFB3"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+
+<!-- mobile home: stacked project index (replaces the network) -->
+<div id="mobile-home"></div>
+
+<!-- hover detail card -->
+<div id="detail">
+  <div class="head"><span class="t"></span><span class="n"></span></div>
+  <div class="img"></div>
+  <div class="desc"></div>
+</div>
+
+<!-- project page (also reused for About) — navigate back via "Work" -->
+<div id="overlay">
+  <div class="inner"></div>
+</div>
+
+<script>
+/* ==================================================================
+   CONFIG — everything editable lives here
+   ================================================================== */
+
+const SETTINGS = {
+  codeUrl: "https://github.com/yourusername",   // "Code" nav link
+  about: `<p>Hi, I'm Sam</p>
+    <p>A designer working in experience and interactive design, with deep
+    knowledge in 3D motion and an ongoing appetite for teaching myself
+    machine learning and mathematics. The psychology of human movement and
+    interaction sits at the front of everything I make — it's the lens I
+    return to in every decision. I've worked on projects for clients like
+    IBM, Apple, and Xsolla, spanning interactive experiences, brand systems,
+    and 3D motion.</p>
+    <p>I'm interested in where my technical skill meets conceptual depth,
+    pairing how things are built with why they matter. I have an innate
+    sense for designing around a user, and an interest towards future-led
+    technology that's steering me increasingly towards AI research and
+    mathematics, always with design in mind, whether spatial, on-screen,
+    or somewhere between.</p>
+    <p>I love understanding how things work at a deeper level, and using
+    that to encourage deeper thinking in others. So much of what we do is
+    muscle memory, unexamined, and it shouldn't be. I believe in slowing
+    down, and following a path continuously shaped by our experiences.
+    I hope my work can foster that kind of reflection.</p>
+    <p>Ultimately, I want what I make to be used for good and to teach
+    acceptance, to remove ego from our decisions, to help us learn rather
+    than assume. I think the work I make is a step toward that.</p>
+    <p><a href="mailto:samdiliberto31@gmail.com">samdiliberto31@gmail.com</a><br>
+    +44 7518 568 830<br>
+    <a href="https://www.instagram.com/samsdiliberto/" target="_blank" rel="noopener">Instagram</a></p>`,
+};
+
+/*
+  THE NETWORK
+  -----------
+  Each inner array is a LAYER (left → right): inputs, hidden layer(s), outputs.
+  Add / remove nodes or entire layers — the network re-lays itself out
+  and stays fully connected between adjacent layers automatically.
+
+  Node fields:
+    title        label inside the neuron (top-left)
+    num          index shown on the hover card / overlay ("01")
+    year         shown in the expanded view
+    image        path or URL to a thumbnail — null uses the gradient fallback
+    gradient     CSS background used when image is null
+    description  short text for the hover card
+    body         longer text for the expanded project view (HTML allowed)
+*/
+const LAYERS = [
+  // ---- INPUT LAYER (2024) ----
+  [
+    { title: "Permeable", num: "01", year: "2024",
+      image: "images/perm/Screenshot-2025-06-28-at-15.41.17.png",
+      tone: "dark",
+      gradient: "linear-gradient(135deg,#f9ddc0,#f4c4b4 70%,#f0bcc2)",
+      description: "An interactive experience exploring the relationship between emotion and memory — voice and touch reshape a permeable single-cell molecule.",
+      body: `<p>Permeable is an interactive experience that explores the intricate
+        relationship between emotion and memory, emphasizing how emotional states —
+        especially those tied to trauma, stress, or novelty — can significantly
+        influence memory formation, recall, and reconstruction.</p>
+        <p>Using a permeable single-cell molecule which can be altered by the user's
+        input of sound and touch, I ask the user to remember a significant moment in
+        time. Frequencies within their voice provide different results — each user has
+        their own personal "thumbprint". Our tonality can help uncover different
+        internal states, which are represented in a digital neural network.</p>
+        <p>Photos: user testing at exhibition @ Millbank Tower.</p>`,
+      page: [
+        { type: "text", html: `<p>Permeable is an interactive experience
+          that explores the intricate relationship between emotion and
+          memory, emphasizing how emotional states — especially those tied to
+          trauma, stress, or novelty — can significantly influence memory
+          formation, recall, and reconstruction.</p>` },
+        { type: "media", src: "images/perm/Screenshot-2025-06-28-at-15.41.17.png" },
+        { type: "media", src: "images/perm/Screenshot-2025-06-28-at-15.39.47.png" },
+        { type: "text", html: `<p>Using a permeable single cell molecule
+          which can be altered by the user's input of sound and touch, I ask
+          the user to remember a significant moment in time. Based on
+          frequencies within their voice, each user has their own personal
+          "thumbprint" — our tonality can help uncover different internal
+          states, which are represented in a digital neural network.</p>` },
+        { type: "duo", srcs: [
+          "images/perm/Artboard-1.jpg",
+          "images/perm/Artboard-2.jpg",
+        ] },
+        { type: "duo", flip: true, srcs: [
+          "images/perm/Artboard-3.jpg",
+          "images/perm/Artboard-4.jpg",
+        ] },
+        { type: "text", html: `<p>Photos: user testing at exhibition
+          @ Millbank Tower.</p>` },
+      ],
+      credits: { "For": "Self-initiated", "Year": "2024",
+        "Role": "Interaction, Creative Technology, Sound" } },
+    { title: "Retainer Theory", num: "02", year: "2024",
+      image: "images/retainer/Artboard-4.png",
+      heroCrop: true,
+      gradient: "linear-gradient(150deg,#dfe0f5,#c9c2ee 60%,#bdb4ea)",
+      description: "An interactive publication exploring autosuggestion — navigating a structural, responsive routine and pushing towards freedom.",
+      body: `<p>A response to the brief: choose an object or a collection of objects
+        and a theme that links them together that you would like to explore.</p>
+        <p>I created an interactive publication which explores the idea of
+        autosuggestion — navigating a structural and responsive routine and ultimately
+        pushing towards freedom and dismantling the cycle.</p>`,
+      page: [
+        { type: "text", html: `<p>A response to the brief: choose an object
+          or a collection of objects and a theme that links them together
+          that you would like to explore.</p>
+          <p>I created an interactive publication which explores the idea of
+          autosuggestion — navigating a structural and responsive routine and
+          ultimately pushing towards freedom and dismantling the cycle.</p>` },
+        { type: "media", src: "images/retainer/Artboard-4.png" },
+        { type: "duo", srcs: [
+          "images/retainer/Artboard-5.png",
+          "images/retainer/Artboard-6.png",
+        ] },
+        { type: "duo", flip: true, srcs: [
+          "images/retainer/Artboard-8.png",
+          "images/retainer/q.png",
+        ] },
+        { type: "duo", srcs: [
+          "images/retainer/Type7.png",
+          "images/retainer/Type10-1.png",
+        ] },
+      ],
+      credits: { "For": "Self-initiated", "Year": "2024",
+        "Role": "Editorial, Interaction, Type" } },
+  ],
+  // ---- HIDDEN LAYER (2025) ----
+  [
+    { title: "Taste is our scarcest asset", num: "03", year: "2025", client: "FIELD.IO",
+      image: "images/taste/fieldteam_10566_82636_httpss.mj.run1Is46tSrmyI_Close-up_art-dir_d7eeedf3-0778-4b27-9f7b-16a89df59791.jpg",
+      gradient: "linear-gradient(150deg,#eecfd8,#e0c2e4 60%,#d0bcea)",
+      description: "Visuals for FIELD's essay on discernment in the age of machine-generated content — finding the diamond in the dirt.",
+      body: `<p>Taste Is Now Our Scarcest Asset explores how, in an age of limitless
+        machine-generated content, the defining human value is no longer production
+        but discernment. Taste becomes a form of intelligence — the ability to curate,
+        refine, and give coherence to what we create.</p>
+        <p>For this project, I created the accompanying visuals, using the metaphor of
+        finding a diamond in the dirt to express the process of filtering meaning from
+        excess. The visual progression reflects clarity emerging from chaos — textures,
+        light, and form evolving toward precision — mirroring the article's central
+        theme that true intelligence lies in perception, selection, and the pursuit of
+        distinction amidst abundance.</p>
+        <p>I helped direct and inform decisions around social posts, audience
+        understanding, and engagement strategy — meticulously curating works to build
+        a cohesive narrative aligned with the essay's exploration of taste,
+        intelligence, and creative refinement.</p>`,
+      page: [
+        { type: "text", html: `<p>Taste Is Now Our Scarcest Asset explores
+          how, in an age of limitless machine-generated content, the defining
+          human value is no longer production but discernment. Taste becomes
+          a form of intelligence — the ability to curate, refine, and give
+          coherence to what we create.</p>` },
+        { type: "media", src: "images/taste/fieldteam_10566_82636_httpss.mj.run1Is46tSrmyI_Close-up_art-dir_d7eeedf3-0778-4b27-9f7b-16a89df59791.jpg" },
+        { type: "duo", srcs: [
+          "images/taste/Artboard 1.jpg",
+          "images/taste/Artboard 4.jpg",
+        ] },
+        { type: "duo", flip: true, srcs: [
+          "images/taste/enhanced_CI_006_Taste_image_03.jpg",
+          "images/taste/enhanced_CI_006_Taste_image_01.jpg",
+        ] },
+        { type: "grid", cols: 3, srcs: [
+          "images/taste/close-up_ultra-high-resolution_animation_of_a_hyper-detailed_rock_formation_with_a_rugged_porous_su_2apsklkq8d6tbdl0kzaw_1 copy.mp4",
+          "images/taste/close-up_ultra-high-resolution_animation_of_a_hyper-detailed_rock_formation_with_porous_tactile_edg_fhff10vdr2omv8oeeni6_1 copy.mp4",
+          "images/taste/close-up_ultra-high-resolution_animation_of_a_hyper-detailed_rock_formation_with_porous_tactile_edg_kxi1t9ebbn1andaac1ea_1.mp4",
+        ] },
+        { type: "text", html: `<p>For this project, I created the
+          accompanying visuals, using the metaphor of finding a diamond in
+          the dirt to express the process of filtering meaning from excess.
+          The visual progression reflects clarity emerging from chaos —
+          textures, light, and form evolving toward precision — mirroring the
+          article's central theme that true intelligence lies in perception,
+          selection, and the pursuit of distinction amidst abundance.</p>` },
+        { type: "media", align: "center", src: "images/taste/250915_NK_386_CI006_fractals_v06 (2).mp4" },
+        { type: "duo", srcs: [
+          "images/taste/Artboard 2.jpg",
+          "images/taste/e74513333640e143e7599395f2772ab8eeff73b19f649fc2863fd328a294e2dc.png",
+        ] },
+        { type: "grid", cols: 4, srcs: [
+          "images/taste/74595ec255e8f8f4647cf4bfd3a61d2a6749392592707c949058063ca4d6591d.png",
+          "images/taste/881777a41b0b881a03a49f8be9c364d0ec66e7e422eadf99c059e98c524a5040.png",
+          "images/taste/daebba75c78584e113ca8bcb4108f4ec17328b3066ee70af2aec0701a37cb037.png",
+          "images/taste/e0d1ae6857f9b5d5ad654ec364759cb68e8417b1c17537e27f4c68f610901f05.png",
+        ] },
+        { type: "media", src: "images/taste/fieldteam_10566_82636_httpss.mj.run1Is46tSrmyI_Close-up_art-dir_eea26fef-b7cd-42bc-a50b-27329790e00d.jpg" },
+        { type: "duo", flip: true, srcs: [
+          "images/taste/fieldteam_10566_82636_httpss.mj.runVDKeWJBv3uM_Extreme_macro__210d20b7-5712-4e54-bf32-c2bce89dea1d_2.png",
+          "images/taste/fieldteam_10566_82636_httpss.mj.runp5v3ALla9io_httpss.mj.runw_96a7be89-f90c-44cf-b21c-3afb0c0041cb_0.png",
+        ] },
+        { type: "text", html: `<p>I helped direct and inform decisions around
+          social posts, audience, and engagement strategy, curating and
+          sequencing work into a cohesive narrative that supported the
+          underlying topic. Each piece was chosen to align, conceptually and
+          visually, with the essay's exploration of taste, intelligence, and
+          creative refinement.</p>` },
+        { type: "media", align: "center", src: "images/taste/Artboard-1.png" },
+        { type: "duo", flip: true, srcs: [
+          "images/taste/camera_slowly_and_subtly_dolly_zooms_in_he_stands_centered_in_silhouette_facing_forward_they_natura_xsqe9njdgzlwqaf0czqe_1.mp4",
+          "images/taste/Instagram-Post-Tall-Safe-Zone-Template.png",
+        ] },
+        { type: "media", src: "images/taste/scarce-asset.png" },
+      ],
+      credits: { "For": "FIELD.IO", "Year": "2025",
+        "Role": "Visual Direction, 3D, Social Strategy" } },
+    { title: "Spaces That Listen", num: "04", year: "2025", client: "FIELD.IO",
+      image: "images/spaces/Artboard 12.jpg",
+      tone: "dark",
+      heroCrop: true,   // square hero crops to a banner on this page
+      gradient: "linear-gradient(150deg,#f8d6bd,#f2c3c6 55%,#e8bedd)",
+      description: "Living architecture that listens, learns, and responds — visualising spatial intelligence for FIELD.",
+      body: `<p>Intelligent spaces mark a pivotal moment in how architecture and
+        technology converge to shape human experience. Building on the idea of
+        <em>Spatial Intelligence</em> — environments that listen, learn, and respond —
+        these spaces represent a new kind of living architecture that adapts to
+        presence and behavior in real time.</p>
+        <p>Visually, the narrative begins in a minimal, geometric white space — a
+        neutral ground that suggests potential and clarity. As the sequence unfolds,
+        the environment starts to morph and evolve, guided by an unseen intelligence
+        that acts as a catalyst for transformation. The shifting geometry reflects how
+        spatial intelligence continuously optimises under human presence, while subtle
+        transitions in colour evoke the flow of human presence and energy within the
+        space.</p>
+        <p>I contributed to the creation and direction of a series of posts and
+        visuals that explore this idea — communicating the presence of <em>living
+        machines</em> within space, and illustrating how design, data, and computation
+        can come together to create environments that evolve with us.</p>`,
+      page: [
+        { type: "text", html: `<p>Intelligent spaces mark a pivotal moment in
+          how architecture and technology converge to shape human experience.
+          Building on the idea of Spatial Intelligence — environments that
+          listen, learn, and respond — these spaces represent a new kind of
+          living architecture that adapts to presence and behavior in real
+          time. Understanding and shaping the spaces we inhabit is vital to
+          developing a more functional and responsive society, one that
+          enhances both everyday life and retail experiences.</p>` },
+        { type: "media", src: "images/spaces/fieldteam_10566_82636_httpss.mj.runm8PiqS_fRko_showing_shimmeri_ac337acd-686f-4e01-a6b1-1b293ce77bea.png" },
+        { type: "grid", cols: 2, srcs: [
+          "images/spaces/spaces-that-speak.png",
+          "images/spaces/fieldteam_10566_82636_httpss.mj.runm8PiqS_fRko_showing_shimmeri_d600d8b6-7801-4000-ba19-9c9cd0a71cf1.jpg",
+        ] },
+        { type: "text", html: `<p>Visually, the narrative begins in a
+          minimal, geometric white space — a neutral ground that suggests
+          potential and clarity. As the sequence unfolds, the environment
+          starts to morph and evolve, guided by an unseen intelligence that
+          acts as a catalyst for transformation. The shifting geometry
+          reflects how spatial intelligence continuously optimises under
+          human presence, while subtle transitions in colour evoke the flow
+          of human presence and energy within the space. Together, these
+          visual elements communicate the idea of an environment that is
+          alive, responsive, and constantly learning.</p>` },
+        { type: "media", align: "center", src: "images/spaces/CI_003_SDxNK_4x5_v11.mp4" },
+        { type: "grid", cols: 4, srcs: [
+          "images/spaces/Artboard 12.jpg",
+          "images/spaces/fieldteam_10566_82636_httpss.mj.runB4FhkvE-a9s_httpss.mj.runJ_85d70d94-0427-43b8-98e5-fcc3493e9541_0.png",
+          "images/spaces/fieldteam_10566_82636_httpss.mj.runjEuFOYUL6AM_Minimalist_abstr_c7dc9fc7-a9b6-4b7a-90fb-46a5dede0fc0.jpg",
+          "images/spaces/fieldteam_10566_82636_showing_dense_white_smoke_billowing_low_1879f66f-6aa4-4800-a27a-831e23e1de6f_1.png",
+          "images/spaces/fieldteam_10566_82636_showing_dense_white_smoke_billowing_low_9a3057c6-7641-4b85-8009-4ba613441d0d_0.png",
+          "images/spaces/fieldteam_10566_82636_showing_dense_white_smoke_billowing_low_9a3057c6-7641-4b85-8009-4ba613441d0d_2.png",
+          "images/spaces/fieldteam_10566_82636_showing_shimmering_vapor_billowing_low__6265a13f-d9ba-47e6-bc4a-084f6199632b_3.png",
+          "images/spaces/fieldteam_10566_82636_showing_shimmering_vapor_billowing_low_ac_1c06f3ef-152a-4107-9fb8-efbad278ea03.png",
+          "images/spaces/fieldteam_10566_82636_showing_shimmering_vapor_billowing_low_ac_f755a0ab-7d27-4d26-8c38-5a254434c100.png",
+          "images/spaces/fieldteam_10566_82636_showing_shimmering_vapor_billowing_low_ac_f9a484f8-70d5-4276-9162-859a413fe367.jpg",
+          "images/spaces/camera_slowly_and_subtly_dolly_zooms_in_he_stands_centered_in_silhouette_facing_forward_they_natura_xsqe9njdgzlwqaf0czqe_1.mp4",
+        ] },
+        { type: "duo", srcs: [
+          "images/spaces/starting_with_the_previous_ethereal_haze_clip_as_the_seed-_same_minimal_futuristic_hallway_with_coo_6wgcyh2nn9st9okkybwi_1.mp4",
+          "images/spaces/tech_particles_streaming_upward_from_bottom_building_and_accumulating_in_empty_negative_space_digit_3s916c8xoqabwrzfbd5d_1.mp4",
+        ] },
+        { type: "media", src: "images/spaces/camera_slowly_and_subtly_dolly-zooms_in_on_a_man_seated_with_head_resting_back_gazing_upward_as_if__512jew7looq917agtl7l_1.mp4" },
+        { type: "text", html: `<p>I contributed to the creation and direction
+          in a series of posts and visuals that explore this idea —
+          communicating the presence of living machines within space, and
+          illustrating how design, data, and computation can come together to
+          create environments that evolve with us.</p>` },
+        { type: "grid", cols: 2, srcs: [
+          "images/spaces/social-draft.png",
+          "images/spaces/Slide-16_9---3.png",
+        ] },
+        { type: "media", src: "images/spaces/socials-space.png" },
+      ],
+      credits: { "For": "FIELD.IO", "Year": "2025",
+        "Role": "Visual Direction, 3D, Motion, Social" } },
+    { title: "Lunara", num: "05", year: "2025",
+      image: "images/lunara/Artboard-1.jpg",
+      gradient: "linear-gradient(160deg,#e4d9f2,#cfc2ec 55%,#c0b8ee)",
+      description: "Time as something to feel, not measure — an ambient companion of light and sound born from circadian research.",
+      body: `<p>Lunara reimagines time as something to feel, not measure.</p>
+        <p>Born from research into circadian rhythms, it transforms the clock into a
+        living companion — an ambient presence of light and sound that shifts with
+        you. Patterns evolve, tones breathe, textures drift. Each a quiet signal of
+        change and continuity.</p>
+        <p>Instead of digits and deadlines, Lunara offers emotional time: an
+        atmosphere for reflection and calm within the noise of daily life. In
+        stillness, we rediscover presence; in presence, we find balance. Light becomes
+        language — energy rendered visible, resonating with your rhythm. It mirrors
+        your aura, translating time into a fluid, sensory dialogue between self and
+        environment.</p>
+        <p>A reminder that time isn't controlled — it's <em>experienced</em>.</p>`,
+      noBleed: true,   // exception: this page opens without a hero
+      page: [
+        { type: "text",  html: `<p>Lunara reimagines time as something to
+          feel, not measure.</p>
+          <p>Born from research into circadian rhythms, it transforms the
+          clock into a living companion, an ambient presence of light and
+          sound that shifts with you. Patterns evolve, tones breathe,
+          textures drift. Each a quiet signal of change and continuity.</p>` },
+        { type: "media", src: "images/lunara/Artboard-1.jpg" },
+        { type: "media", align: "center",
+          src: "images/lunara/fieldteam_10566_82636_Full-body_view_of_a_single_elegant_fema_af0fc1e3-d410-44d4-8290-39f2498cfcdc_3.png" },
+        { type: "text",  html: `<p>Instead of digits and deadlines, Lunara
+          offers emotional time: an atmosphere for reflection and calm within
+          the noise of daily life. In stillness, we rediscover presence; in
+          presence, we find balance.</p>` },
+        { type: "media", src: "images/lunara/fieldteam_10566_82636_httpss.mj.run0BZxkJOQipY_close-up_shot__11240243-69ab-4649-a90a-e0fe82999fe1_2.png" },
+        { type: "text",  html: `<p>Light becomes language, energy rendered
+          visible, resonating with your rhythm. It mirrors your aura,
+          translating time into a fluid, sensory dialogue between self and
+          environment.</p>` },
+        { type: "grid", cols: 3, srcs: [
+          "images/lunara/Artboard-2.png",
+          "images/lunara/Artboard-3.jpg",
+          "images/lunara/Artboard-4.png",
+          "images/lunara/Artboard-5.png",
+          "images/lunara/Artboard-6.png",
+          "images/lunara/Artboard-2 (1).jpg",
+        ] },
+        { type: "text",  html: `<p>A reminder that time isn't controlled —
+          it's <em>experienced</em>.</p>` },
+        { type: "media", src: "images/lunara/fieldteam_10566_82636_httpss.mj.runWzAHa52yzVc_close_up_contemp_f8b28781-4166-47f7-8edf-9c37165bf2f3.jpg" },
+        { type: "duo", srcs: [
+          "images/lunara/fieldteam_10566_82636_httpss.mj.runWzAHa52yzVc_contemporary_m_97548e60-a34f-4de6-b2d8-090a914b3c53_3.png",
+          "images/lunara/fieldteam_10566_82636_httpss.mj.runWzAHa52yzVc_contemporary_m_e637e6e8-6339-474f-bd13-dc52eb8d2896_2.png",
+        ] },
+        { type: "duo", flip: true, srcs: [
+          "images/lunara/fieldteam_10566_82636_httpss.mj.runb-pie0TStmg_contemporary_m_476dd2ca-2f1b-448f-ba6a-1a6d12fe3557_0.png",
+          "images/lunara/fieldteam_10566_82636_httpss.mj.run-ER96E8_cDo_close-up_conte_c220ba10-353d-4b65-9e64-1dcbd606c2bf_2.png",
+        ] },
+        { type: "media", src: "images/lunara/fieldteam_10566_82636_Full-body_view_of_a_single_elegant_fema_fd5b5a55-358c-41cb-a169-7a0a9fcef89d_0.png" },
+        { type: "duo", srcs: [
+          "images/lunara/Artboard-1.jpg",
+          "images/lunara/Artboard-1-1.jpg",
+        ] },
+        { type: "duo", flip: true, srcs: [
+          "images/lunara/Artboard-2.jpg",
+          "images/lunara/Artboard-3.jpg",
+        ] },
+        { type: "media", align: "center", src: "images/lunara/Comp-1_2.mp4" },
+      ],
+      credits: { "For": "Self-initiated", "Year": "2025",
+        "Role": "Concept, 3D, Interaction Design" } },
+    { title: "ON — Not Faster, Better", num: "06", year: "2025",
+      image: "images/on/1.jpg",
+      gradient: "linear-gradient(150deg,#fae2ca,#f2c9b8 60%,#eec0c8)",
+      description: "Reframing time as a medium, not a metric — conceived for ON's D&AD brief.",
+      body: `<p>Not Faster — Better reframes time as a medium, not a metric.</p>
+        <p>In an era where speed is mistaken for success, we audit every second,
+        optimize every gesture — yet in doing so, we erase the nuance.</p>
+        <p>This project, conceived for ON's D&AD brief, flips that logic. It doesn't
+        race the clock. It listens to its rhythm. Through calibrated form, intentional
+        pacing, and mindful gestures, we elevate how every moment feels.</p>
+        <p>Because it isn't about going faster. It's about moving with purpose.</p>`,
+      page: [
+        { type: "text", html: `<p>Not Faster — Better reframes time as a
+          medium, not a metric.</p>
+          <p>In an era where speed is mistaken for success, we audit every
+          second, optimize every gesture — yet in doing so, we erase the
+          nuance.</p>` },
+        { type: "media", src: "images/on/D-AD-FINAL-FILM.mp4" },
+        { type: "text", html: `<p>This project, conceived for ON's D&AD
+          brief, flips that logic. It doesn't race the clock. It listens to
+          its rhythm. Through calibrated form, intentional pacing, and
+          mindful gestures, we elevate how every moment feels.</p>
+          <p>Because it isn't about going faster. It's about moving with
+          purpose.</p>` },
+        { type: "grid", cols: 2, srcs: [
+          "images/on/1.jpg",
+          "images/on/2.jpg",
+          "images/on/3.jpg",
+          "images/on/4.jpg",
+          "images/on/5.jpg",
+          "images/on/6.jpg",
+          "images/on/7.jpg",
+          "images/on/8.jpg",
+        ] },
+      ],
+      credits: { "For": "ON — D&AD brief", "Year": "2025",
+        "Role": "Concept, 3D, Motion" } },
+    { title: "Every Which Way", num: "07", year: "2025",
+      image: "images/degree_show/Triangle-Space-Outside-4x3.jpg",
+      tone: "dark",
+      gradient: "linear-gradient(150deg,#f0c8ce,#dcc0e6 55%,#cabcee)",
+      description: "Branding for the BA Graphic Design Communication degree show at UAL Chelsea College of Arts.",
+      body: `<p>Branding and identity for Every Which Way, the BA Graphic Design
+        Communication Year 3 Final Degree Show at UAL Chelsea College of Arts.</p>
+        <p>Inspired by third-year students finding direction — both personal and
+        literal — we created a clean brand and identity system adaptable to multiple
+        use cases.</p>`,
+      page: [
+        { type: "text", html: `<p>Branding and identity for Every Which Way,
+          the BA Graphic Design Communication Year 3 Final Degree Show at UAL
+          Chelsea College of Arts.</p>
+          <p>Inspired by third-year students finding direction, both personal
+          and literal, we created a clean brand and identity system adaptable
+          to multiple use cases.</p>` },
+        { type: "media", src: "images/degree_show/Triangle-Space-Outside-4x3.jpg" },
+        { type: "grid", cols: 2, srcs: [
+          "images/degree_show/Flag-4x3.jpg",
+          "images/degree_show/Showreel-Tag-4x3.png",
+        ] },
+        { type: "media", src: "images/degree_show/Branding-Deck-16x9.jpg" },
+        { type: "media", align: "center", src: "images/degree_show/Degree-Show-Announcement-Video-16x9.mp4" },
+        { type: "grid", cols: 3, srcs: [
+          "images/degree_show/Degree-Show-IG-Vid-4x3.jpg",
+          "images/degree_show/IG-Auction-Video-Still-4x3.jpg",
+          "images/degree_show/Live-Auction---Auction-Post-4x3.jpg",
+        ] },
+      ],
+      credits: { "For": "UAL Chelsea College of Arts", "Year": "2025",
+        "Role": "Branding, Identity, Motion" } },
+  ],
+  // ---- OUTPUT LAYER (ongoing) ----
+  [
+    { title: "Xsolla", num: "08", year: "2026 · Ongoing", client: "Pentagram",
+      image: "images/xsolla/3D Symbol.png",
+      tone: "dark",
+      gradient: "linear-gradient(135deg,#f9ddc0,#eebfce 55%,#c5bcf0)",
+      description: "3D assets for Xsolla's currency system, with Pentagram — used across UI, in game, in app, and on web.",
+      body: `<p>3D assets created for Xsolla's currency system, built to be used
+        across varied sections of the UI, in game, in app, and on web. They give
+        the currency a more representative, tangible form, one that reflects and
+        extends the brand's guidelines.</p>`,
+      page: [
+        { type: "text", html: `<p>3D assets created for Xsolla's currency
+          system, built to be used across varied sections of the UI, in game,
+          in app, and on web. They give the currency a more representative,
+          tangible form, one that reflects and extends the brand's
+          guidelines.</p>` },
+        { type: "media", src: "images/xsolla/11-Xsolla-ZK-in-context.png" },
+        { type: "text", html: `<p>A set of five poses was created, each
+          holding consistency across every currency. Understanding the
+          contexts they'd appear in made it possible to build flexible assets
+          for quick use across the UI, with dark and light versions rendered
+          for each, keeping the look consistent across different light
+          modes.</p>` },
+        { type: "grid", cols: 2, srcs: [
+          "images/xsolla/5-Xsolla-Points.jpg",
+          "images/xsolla/6-Xsolla-Gold.jpg",
+          "images/xsolla/7-Cloud-Gaming-Orbs.jpg",
+          "images/xsolla/8-Green-Orbs.jpg",
+        ] },
+        { type: "media", align: "center", src: "images/xsolla/10-Xsolla-ZK-proposal.jpg" },
+        { type: "text", html: `<p>Contextual tests, providing insight into a
+          layered approach and how orbs interact with each other when
+          introducing elements like opacity, reflection and refraction.</p>` },
+        { type: "duo", srcs: [
+          "images/xsolla/BLUE_LIGHT_POSE_10-2.png",
+          "images/xsolla/GOLD-COMPOSITION-3-1.png",
+        ] },
+        { type: "duo", flip: true, srcs: [
+          "images/xsolla/GREEN_COMPOSITION-8-1.png",
+          "images/xsolla/ORANGE_COMP-7-1.png",
+        ] },
+        { type: "text", html: `<p>Similarly, an example set of "Game orbs" to
+          highlight how these could look in collaboration with different
+          companies.</p>` },
+        { type: "media", align: "center", src: "images/xsolla/13-Game-Orbs.jpg" },
+        { type: "text", html: `<p>A collection of reference assets, in look
+          dev — looking at how different glows of logos sit on different
+          coloured tokens, considering and creating rules on thickness and
+          roundness of edges, placement of text, and how two-tone logos would
+          work. Creating these guidelines allows for consistent reproduction
+          when using the client's desired AI workflow.</p>` },
+        { type: "media", align: "center", src: "images/xsolla/18-Community-Tokens.png" },
+        { type: "grid", cols: 3, srcs: [
+          "images/xsolla/front0025.png",
+          "images/xsolla/persp 1_0025.png",
+          "images/xsolla/persp 2_0025.png",
+          "images/xsolla/TAG_FRONT_2_0005.png",
+          "images/xsolla/TAG_PERSP 4_0005.png",
+          "images/xsolla/01_0025 (5).png",
+          "images/xsolla/02_0025 (2).png",
+          "images/xsolla/02_0025 (3).png",
+          "images/xsolla/03_0025 (1).png",
+          "images/xsolla/03_0025 (2).png",
+          "images/xsolla/05_0025 (1).png",
+          "images/xsolla/02_0038.png",
+          "images/xsolla/03_0038.png",
+          "images/xsolla/028_0038.png",
+          "images/xsolla/029_0038.png",
+        ] },
+        { type: "grid", cols: 2, srcs: [
+          "images/xsolla/15-Tickets.jpg",
+          "images/xsolla/16-Tickets.jpg",
+        ] },
+        { type: "text", html: `<p>This motion extends Xsolla's slick, fluid
+          movement into something with its own character — realistic but also
+          playful. Near-photographic surfaces meet an edge of cartoon
+          lightness, making the act of purchasing feel tactile, alive and
+          expressive of the Xsolla brand.</p>
+          <p>The exploration centres on a single object held within an open
+          structural box, a form built without a back, so it never overlaps
+          awkwardly with the elements passing through it. This solved a
+          recurring challenge around alpha and opacity, keeping the motion
+          clean across layering. Because a storefront spans an effectively
+          infinite range of products, the system is built for a quick switch
+          of its central object and for versatility across different layouts —
+          a single motion language that holds whatever it's asked to carry.
+          These explorations consider how that translates to web, in both
+          behaviour and format.</p>` },
+        { type: "text", html: `<p>Another workaround came through rotation,
+          turning the box just before its rear structure would have been
+          caught by the 3D scanning growth effect. This preserved the
+          integrity of the original form without resorting to layering, which
+          was always treated as a last option anyway.</p>` },
+        { type: "text", html: `<p>Early stage testing and ideation.</p>` },
+        { type: "grid", cols: 6, srcs: [
+          "images/xsolla/materiality_3.mp4",
+          "images/xsolla/growing_object 2.mp4",
+          "images/xsolla/volume_03.mp4",
+          "images/xsolla/volume_6.mp4",
+          "images/xsolla/tex 2.mp4",
+          "images/xsolla/BOT_PULSE_1.mp4",
+          "images/xsolla/BOT_PULSE_4.mp4",
+          "images/xsolla/box rot 3.mp4",
+          "images/xsolla/rot_1.mp4",
+          "images/xsolla/box_scan.mp4",
+          "images/xsolla/obj grow.mp4",
+          "images/xsolla/single_mov_2.mp4",
+          "images/xsolla/more motion/BOX_TRACE.mp4",
+          "images/xsolla/more motion/box_reveal.mp4",
+          "images/xsolla/more motion/material reveal.mp4",
+          "images/xsolla/test_10.mp4",
+          "images/xsolla/3d-2d.mp4",
+        ] },
+      ],
+      credits: { "For": "Xsolla", "Year": "2026",
+        "With": "Pentagram", "Role": "3D Design" } },
+  ],
+];
+
+/* ==================================================================
+   ENGINE — no need to edit below to add projects
+   ================================================================== */
+
+const stage   = document.getElementById("stage");
+const wires   = document.getElementById("wires");
+const detail  = document.getElementById("detail");
+const overlay = document.getElementById("overlay");
+
+const flat = [];          // { node, el, x, y } — filled by layout()
+const edges = [];         // { path, a, b }
+
+let S = 160;              // current node size — computed in layout()
+
+function maxNodeSize() {
+  return parseFloat(getComputedStyle(document.documentElement)
+    .getPropertyValue("--node-size"));
+}
+
+/* thumbnail markup shared by neuron / detail / overlay */
+function media(node) {
+  if (node.image) return `<img src="${node.image}" alt="${node.title}">`;
+  return `<div class="grad" style="background:${node.gradient}"></div>`;
+}
+
+/* ---------- build DOM once ---------- */
+function build() {
+  LAYERS.forEach((layer, li) => {
+    layer.forEach((node, ni) => {
+      const el = document.createElement("div");
+      el.className = "neuron";
+      el.innerHTML = `<div class="card">
+                        <div class="head"><span class="t">${node.title}</span><span class="n">${node.num}</span></div>
+                        <div class="thumb">${media(node)}</div>
+                      </div>`;
+      // organic float: varied duration + phase per node
+      el.style.animationDuration = (5 + Math.random() * 3).toFixed(2) + "s";
+      el.style.animationDelay = (-Math.random() * 5).toFixed(2) + "s";
+      el.addEventListener("mouseenter", () => showDetail(node, el));
+      el.addEventListener("mouseleave", hideDetail);
+      el.addEventListener("click", () => openProject(node));
+      stage.appendChild(el);
+      flat.push({ node, el, layer: li, index: ni, x: 0, y: 0 });
+    });
+  });
+
+  // fully connect adjacent layers
+  let offset = 0;
+  for (let li = 0; li < LAYERS.length - 1; li++) {
+    const aStart = offset;
+    const bStart = offset + LAYERS[li].length;
+    for (let i = 0; i < LAYERS[li].length; i++) {
+      for (let j = 0; j < LAYERS[li + 1].length; j++) {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        wires.appendChild(path);
+        edges.push({ path, a: aStart + i, b: bStart + j });
+      }
+    }
+    offset += LAYERS[li].length;
+  }
+}
+
+/* ---------- layout: positions adapt to any node/layer count ---------- */
+function layout() {
+  const W = stage.clientWidth;
+  const H = stage.clientHeight;
+  const mx = Math.max(40, W * 0.075);   // horizontal margin
+  const my = Math.max(30, H * 0.08);    // vertical margin
+  const cols = LAYERS.length;
+  const gap = 28;                       // minimum breathing room between cards
+
+  // shrink cards if the densest layer would otherwise touch
+  const maxCount = Math.max(...LAYERS.map(l => l.length));
+  S = Math.min(maxNodeSize(),
+    (H - 2 * my - (maxCount - 1) * gap) / maxCount);
+
+  flat.forEach(item => {
+    item.el.style.width  = S + "px";
+    item.el.style.height = S + "px";
+    const colX = cols === 1
+      ? W / 2 - S / 2
+      : mx + (item.layer * (W - 2 * mx - S)) / (cols - 1);
+    const count = LAYERS[item.layer].length;
+    const availH = H - 2 * my - S;
+    const rowY = count === 1
+      ? my + availH / 2
+      : my + (item.index * availH) / (count - 1);
+
+    item.x = colX;
+    item.y = rowY;
+    item.el.style.left = colX + "px";
+    item.el.style.top  = rowY + "px";
+  });
+
+  wires.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  document.getElementById("wireGrad").setAttribute("x2", W);
+  drawEdges();
+}
+
+/* ---------- smooth horizontal bezier connections ---------- */
+function drawEdges() {
+  edges.forEach(e => {
+    const a = flat[e.a], b = flat[e.b];
+    const x1 = a.x + S, y1 = a.y + S / 2;
+    const x2 = b.x,     y2 = b.y + S / 2;
+    const c  = (x2 - x1) * 0.55;
+    e.path.setAttribute("d",
+      `M ${x1} ${y1} C ${x1 + c} ${y1}, ${x2 - c} ${y2}, ${x2} ${y2}`);
+  });
+}
+
+/* ---------- hover detail card ---------- */
+function showDetail(node, el) {
+  detail.querySelector(".t").textContent = node.title;
+  detail.querySelector(".n").textContent = node.num;
+  detail.querySelector(".img").innerHTML = media(node);
+  detail.querySelector(".desc").textContent = node.description;
+  detail.classList.add("show");
+  // light up this node's connections
+  const idx = flat.findIndex(f => f.el === el);
+  edges.forEach(e => e.path.classList.toggle("lit", e.a === idx || e.b === idx));
+}
+function hideDetail() {
+  detail.classList.remove("show");
+  edges.forEach(e => e.path.classList.remove("lit"));
+}
+
+/* ---------- expanded project page ----------
+   Default layout: large text lead → full-width hero (like the mockups).
+   For richer pages, give a node a `page` array mixing sections in order:
+     page: [
+       { type: "text",  html: "<p>Large display copy…</p>" },
+       { type: "media", src: "images/hero.jpg" },            // full-width
+       { type: "duo",   srcs: ["a.jpg", "b.jpg"] },          // staggered pair
+       { type: "duo",   srcs: ["c.jpg", "d.jpg"], flip: true }, // mirrored
+       { type: "grid",  srcs: ["e.jpg", "f.jpg", "g.jpg"] }  // equal columns
+     ]
+   Omit `src`/use null in srcs to show the project gradient instead. */
+function mediaBlock(src, gradient, sound) {
+  let inner;
+  if (!src)
+    inner = `<div class="grad" style="background:${gradient}"></div>`;
+  else if (/\.(mov|mp4|webm)$/i.test(src)) {
+    inner = `<video src="${encodeURI(src)}" autoplay loop muted playsinline></video>`;
+    if (sound)
+      inner += `<button class="sound-btn" onclick="toggleSound(this)">Sound</button>`;
+  }
+  else
+    inner = `<img src="${encodeURI(src)}" alt="">`;
+  return `<div class="media">${inner}</div>`;
+}
+
+/* un-mute / re-mute a video via its overlay button */
+function toggleSound(btn) {
+  const v = btn.closest(".media").querySelector("video");
+  if (!v) return;
+  v.muted = !v.muted;
+  if (!v.muted) { v.volume = 1; v.play(); }
+  btn.textContent = v.muted ? "Sound" : "Mute";
+  btn.classList.toggle("on", !v.muted);
+}
+
+/* pin each sound button to the bottom-left corner of its video
+   (videos can be narrower than their .media block) */
+function placeSoundBtns() {
+  document.querySelectorAll("#overlay .sound-btn").forEach(btn => {
+    const m = btn.closest(".media"), v = m.querySelector("video");
+    if (!v) return;
+    const mr = m.getBoundingClientRect(), vr = v.getBoundingClientRect();
+    btn.style.left = (vr.left - mr.left + 14) + "px";
+    btn.style.bottom = (mr.bottom - vr.bottom + 14) + "px";
+  });
+}
+
+function renderPage(node) {
+  let html = `<div class="topline"><h1>${node.title}</h1>` +
+    `<span class="client">${node.client || node.year || ""}</span></div>`;
+  const sections = node.page || [
+    { type: "text",  html: node.body || node.description },
+    { type: "media", src: node.image, gradient: node.gradient },
+  ];
+  // sound toggle on videos everywhere except the Xsolla page
+  const sound = node.title !== "Xsolla";
+  // first media goes full-bleed — unless the node opts out (noBleed: true)
+  let firstMedia = !node.noBleed;
+  let sideCount = 0;              // alternates standalone media left/right
+  sections.forEach(s => {
+    if (s.type === "text")
+      html += `<div class="section-text">` +
+        (s.heading ? `<span class="sec-head">${s.heading}</span>` : "") +
+        `${s.html}</div>`;
+    else if (s.type === "media") {
+      const block = mediaBlock(s.src, s.gradient || node.gradient, sound);
+      if (firstMedia) {
+        html += block.replace('class="media"',
+          'class="media bleed' + (node.heroCrop ? ' crop' : '') + '"');
+      } else if (s.align === "center") {
+        html += block;             /* stays centred, no side alternation */
+      } else {
+        const side = sideCount++ % 2 ? "alt-right" : "alt-left";
+        html += block.replace('class="media"', 'class="media ' + side + '"');
+      }
+      firstMedia = false;
+    }
+    else if (s.type === "duo") {
+      html += `<div class="media-duo${s.flip ? " flip" : ""}">` +
+        s.srcs.slice(0, 2).map(src => mediaBlock(src, node.gradient, sound)).join("") +
+        `</div>`;
+      firstMedia = false;
+    }
+    else if (s.type === "grid") {
+      html += `<div class="media-grid${s.cols ? " cols-" + s.cols : ""}">` +
+        s.srcs.map(src => mediaBlock(src, node.gradient, sound)).join("") + `</div>`;
+      firstMedia = false;
+    }
+  });
+  /* optional credits block: credits: { "For": "…", "Year": "…", … } */
+  if (node.credits)
+    html += `<div class="credits">` +
+      Object.entries(node.credits).map(([k, v]) =>
+        `<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`
+      ).join("") + `</div>`;
+  return html;
+}
+
+/* ---------- page navigation (hash-routed, feels like separate pages) --- */
+const navWork  = document.getElementById("nav-work");
+const navAbout = document.getElementById("nav-about");
+let currentSlug = "";
+
+function setActive(el) {
+  [navWork, navAbout].forEach(a => a.classList.toggle("active", a === el));
+}
+
+function slugOf(t) {
+  return t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function showPage(html) {
+  overlay.querySelector(".inner").innerHTML = html;
+  overlay.classList.add("show");
+  document.body.classList.add("page-open");
+  overlay.scrollTop = 0;
+  document.querySelector("header").classList.remove("hidden");
+  lastScrollY = 0;
+  hideDetail();
+  /* keep sound buttons pinned to their videos once sizes are known */
+  overlay.querySelectorAll("video").forEach(v =>
+    v.addEventListener("loadeddata", placeSoundBtns));
+  placeSoundBtns();
+}
+
+/* header slides away on scroll down, returns on scroll up */
+let lastScrollY = 0;
+overlay.addEventListener("scroll", () => {
+  const y = overlay.scrollTop;
+  const header = document.querySelector("header");
+  if (y > lastScrollY + 6 && y > 120) header.classList.add("hidden");
+  else if (y < lastScrollY - 6 || y <= 120) header.classList.remove("hidden");
+  lastScrollY = y;
+});
+
+function openProject(node, push = true) {
+  const idx = flat.findIndex(f => f.node === node);
+  const next = flat[(idx + 1) % flat.length].node;
+  currentSlug = slugOf(node.title);
+  showPage(renderPage(node) +
+    `<div class="next"><span class="label">Next Project</span>` +
+    `<a id="next-link">${next.title} →</a></div>`);
+  overlay.querySelector("#next-link").addEventListener("click",
+    () => openProject(next));
+  setActive(navWork);
+  if (push) location.hash = "/" + currentSlug;
+}
+
+function openAbout(push = true) {
+  currentSlug = "about";
+  showPage(
+    `<div class="topline"><h1>About</h1>` +
+    `<span class="client">London, UK</span></div>` +
+    mediaBlock(null, "linear-gradient(135deg,#f9ddc0,#eebfce 55%,#c5bcf0)") +
+    `<div class="section-text small">${SETTINGS.about}</div>`);
+  setActive(navAbout);
+  if (push) location.hash = "/about";
+}
+
+function closePage(clearHash = true) {
+  currentSlug = "";
+  overlay.classList.remove("show");
+  document.body.classList.remove("page-open");
+  setActive(navWork);
+  if (clearHash && location.hash)
+    history.pushState(null, "", location.pathname);
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closePage();
+});
+
+setActive(navWork);
+document.getElementById("nav-code").href = SETTINGS.codeUrl;
+navWork.addEventListener("click", () => closePage());
+navAbout.addEventListener("click", () => openAbout());
+
+/* browser back / forward + deep links (#/lunara, #/about) */
+function route(push) {
+  const s = location.hash.replace(/^#\//, "");
+  if (!s) { if (currentSlug) closePage(false); return; }
+  if (s === currentSlug) return;
+  if (s === "about") { openAbout(push); return; }
+  const f = flat.find(f => slugOf(f.node.title) === s);
+  if (f) openProject(f.node, push);
+}
+window.addEventListener("hashchange", () => route(false));
+
+/* ---------- adaptive card colour ----------
+   Samples each image: the card frame takes on a pale complementary tint
+   of the image's average colour, and the title flips to white when the
+   area behind it is dark. Fails silently (keeps defaults) if the image
+   host blocks cross-origin reads. Override per node with tone:"dark". */
+function adaptToImages() {
+  flat.forEach(item => {
+    const n = item.node;
+    if (n.tone === "dark") { item.el.classList.add("dark-img"); }
+    if (!n.image) return;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = c.height = 32;
+        const ctx = c.getContext("2d");
+        ctx.drawImage(img, 0, 0, 32, 32);
+        // average colour of whole image → pale tint for the card frame
+        const all = ctx.getImageData(0, 0, 32, 32).data;
+        let r = 0, g = 0, b = 0;
+        for (let i = 0; i < all.length; i += 4) { r += all[i]; g += all[i+1]; b += all[i+2]; }
+        const px = all.length / 4;
+        r /= px; g /= px; b /= px;
+        const mix = (v) => Math.round(v * 0.14 + 255 * 0.86);   // 86% white
+        item.el.querySelector(".card").style.background =
+          `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+        // luminance of the top strip (behind the title) → text colour
+        const top = ctx.getImageData(0, 0, 32, 8).data;
+        let lum = 0;
+        for (let i = 0; i < top.length; i += 4)
+          lum += 0.2126 * top[i] + 0.7152 * top[i+1] + 0.0722 * top[i+2];
+        lum /= (top.length / 4) * 255;
+        if (n.tone !== "light")
+          item.el.classList.toggle("dark-img", lum < 0.55);
+      } catch (e) { /* cross-origin — keep defaults */ }
+    };
+    img.src = n.image;
+  });
+}
+
+/* ---------- title pills hug their wrapped text ----------
+   an inline-block that wraps expands to full width; this measures the
+   widest rendered line and shrinks the pill to fit it */
+function fitTitles() {
+  document.querySelectorAll(".neuron .head .t").forEach(t => {
+    t.style.width = "";
+    const range = document.createRange();
+    range.selectNodeContents(t);
+    const rects = Array.from(range.getClientRects());
+    if (rects.length > 1) {
+      const w = Math.max(...rects.map(r => r.width));
+      t.style.width = Math.ceil(w) + 22 + "px";   /* + padding & border */
+    }
+  });
+}
+
+/* ---------- go ---------- */
+build();
+
+/* ---------- mobile home: stacked tendril-style project index ---------- */
+(function buildMobileHome() {
+  const host = document.getElementById("mobile-home");
+  if (!host) return;
+  LAYERS.flat().slice()
+    .sort((a, b) => (b.num || "").localeCompare(a.num || ""))  // newest first
+    .forEach(node => {
+      const t = document.createElement("div");
+      t.className = "m-tile";
+      t.innerHTML = `<div class="m-media">${media(node)}</div>` +
+        `<div class="m-cap"><span class="m-t">${node.title}</span>` +
+        `<span class="m-c">${node.client || node.year || ""}</span></div>`;
+      t.addEventListener("click", () => openProject(node));
+      host.appendChild(t);
+    });
+})();
+layout();
+adaptToImages();
+if (document.fonts && document.fonts.ready)
+  document.fonts.ready.then(fitTitles);
+else fitTitles();
+route(false);                       // open deep link if present
+window.addEventListener("resize", () => { layout(); fitTitles(); placeSoundBtns(); });
+</script>
+</body>
+</html>
