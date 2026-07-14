@@ -374,6 +374,9 @@
   #overlay .inner > .media.alt-left video { margin-left: 0; }
   #overlay .inner > .media.alt-right img,
   #overlay .inner > .media.alt-right video { margin-right: 0; }
+  /* edge: the media block bleeds past the page padding to touch the edge */
+  #overlay .inner > .media.alt-left.edge { margin-left: -40px; }
+  #overlay .inner > .media.alt-right.edge { margin-right: -40px; }
   #overlay .media .grad { display: block; width: 100%; height: 64vh; }
   /* sound toggle on videos */
   .sound-btn {
@@ -592,6 +595,8 @@
       max-height: none;
       margin: 0;
     }
+    #overlay .inner > .media.alt-left.edge { margin-left: -16px; }
+    #overlay .inner > .media.alt-right.edge { margin-right: -16px; }
     #overlay .media-grid.cols-2 { grid-template-columns: 1fr; gap: 20px; }
     #overlay .media-grid.cols-3,
     #overlay .media-grid.cols-4,
@@ -840,17 +845,14 @@ const LAYERS = [
           visually, with the essay's exploration of taste, intelligence, and
           creative refinement.</p>` },
         { type: "media", align: "center", src: "images/taste/Artboard-1.png" },
-        { type: "duo", flip: true, srcs: [
-          "images/taste/camera_slowly_and_subtly_dolly_zooms_in_he_stands_centered_in_silhouette_facing_forward_they_natura_xsqe9njdgzlwqaf0czqe_1.mp4",
-          "images/taste/Instagram-Post-Tall-Safe-Zone-Template.png",
-        ] },
+        { type: "media", src: "images/taste/Instagram-Post-Tall-Safe-Zone-Template.png" },
         { type: "media", src: "images/taste/scarce-asset.png" },
       ],
       credits: { "For": "FIELD.IO", "Year": "2025",
         "Role": "Visual Direction, 3D, Social Strategy" } },
     { title: "Spaces That Listen", num: "04", year: "2025", client: "FIELD.IO",
-      image: "images/spaces/Artboard 12.jpg",
-      tone: "dark",
+      image: "images/spaces/fieldteam_10566_82636_httpss.mj.runm8PiqS_fRko_showing_shimmeri_ac337acd-686f-4e01-a6b1-1b293ce77bea.png",
+      tone: "light",
       heroCrop: true,   // square hero crops to a banner on this page
       gradient: "linear-gradient(150deg,#f8d6bd,#f2c3c6 55%,#e8bedd)",
       description: "Living architecture that listens, learns, and responds — visualising spatial intelligence for FIELD.",
@@ -906,13 +908,14 @@ const LAYERS = [
           "images/spaces/fieldteam_10566_82636_showing_shimmering_vapor_billowing_low_ac_1c06f3ef-152a-4107-9fb8-efbad278ea03.png",
           "images/spaces/fieldteam_10566_82636_showing_shimmering_vapor_billowing_low_ac_f755a0ab-7d27-4d26-8c38-5a254434c100.png",
           "images/spaces/fieldteam_10566_82636_showing_shimmering_vapor_billowing_low_ac_f9a484f8-70d5-4276-9162-859a413fe367.jpg",
-          "images/spaces/camera_slowly_and_subtly_dolly_zooms_in_he_stands_centered_in_silhouette_facing_forward_they_natura_xsqe9njdgzlwqaf0czqe_1.mp4",
         ] },
         { type: "duo", srcs: [
           "images/spaces/starting_with_the_previous_ethereal_haze_clip_as_the_seed-_same_minimal_futuristic_hallway_with_coo_6wgcyh2nn9st9okkybwi_1.mp4",
           "images/spaces/tech_particles_streaming_upward_from_bottom_building_and_accumulating_in_empty_negative_space_digit_3s916c8xoqabwrzfbd5d_1.mp4",
         ] },
         { type: "media", src: "images/spaces/camera_slowly_and_subtly_dolly-zooms_in_on_a_man_seated_with_head_resting_back_gazing_upward_as_if__512jew7looq917agtl7l_1.mp4" },
+        { type: "media", side: "right", edge: true,
+          src: "images/spaces/camera_slowly_and_subtly_dolly_zooms_in_he_stands_centered_in_silhouette_facing_forward_they_natura_xsqe9njdgzlwqaf0czqe_1.mp4" },
         { type: "text", html: `<p>I contributed to the creation and direction
           in a series of posts and visuals that explore this idea —
           communicating the presence of living machines within space, and
@@ -922,7 +925,7 @@ const LAYERS = [
           "images/spaces/social-draft.png",
           "images/spaces/Slide-16_9---3.png",
         ] },
-        { type: "media", src: "images/spaces/socials-space.png" },
+        { type: "media", align: "center", src: "images/spaces/socials-space.png" },
       ],
       credits: { "For": "FIELD.IO", "Year": "2025",
         "Role": "Visual Direction, 3D, Motion, Social" } },
@@ -951,26 +954,27 @@ const LAYERS = [
           sound that shifts with you. Patterns evolve, tones breathe,
           textures drift. Each a quiet signal of change and continuity.</p>` },
         { type: "media", src: "images/lunara/Artboard-1-full.jpg" },
-        { type: "media", align: "center",
-          src: "images/lunara/fieldteam_10566_82636_Full-body_view_of_a_single_elegant_fema_af0fc1e3-d410-44d4-8290-39f2498cfcdc_3.png" },
         { type: "text",  html: `<p>Instead of digits and deadlines, Lunara
           offers emotional time: an atmosphere for reflection and calm within
           the noise of daily life. In stillness, we rediscover presence; in
           presence, we find balance.</p>` },
         { type: "media", src: "images/lunara/fieldteam_10566_82636_httpss.mj.run0BZxkJOQipY_close-up_shot__11240243-69ab-4649-a90a-e0fe82999fe1_2.png" },
+        { type: "media", side: "left", edge: true,
+          src: "images/lunara/fieldteam_10566_82636_Full-body_view_of_a_single_elegant_fema_fd5b5a55-358c-41cb-a169-7a0a9fcef89d_0.png" },
         { type: "grid", cols: 3, srcs: [
           "images/lunara/Artboard-2.png",
           "images/lunara/Artboard-3.png",
           "images/lunara/Artboard-4.png",
           "images/lunara/Artboard-5.png",
           "images/lunara/Artboard-6.png",
-          "images/lunara/Artboard-2 (1).jpg",
         ] },
         { type: "text",  html: `<p>Light becomes language, energy rendered
           visible, resonating with your rhythm. It mirrors your aura,
           translating time into a fluid, sensory dialogue between self and
           environment.</p>` },
         { type: "media", src: "images/lunara/fieldteam_10566_82636_httpss.mj.runWzAHa52yzVc_close_up_contemp_f8b28781-4166-47f7-8edf-9c37165bf2f3.jpg" },
+        { type: "media", side: "right",
+          src: "images/lunara/fieldteam_10566_82636_Full-body_view_of_a_single_elegant_fema_af0fc1e3-d410-44d4-8290-39f2498cfcdc_3.png" },
         { type: "text",  html: `<p>A reminder that time isn't controlled —
           it's <em>experienced</em>.</p>` },
         { type: "duo", srcs: [
@@ -981,7 +985,6 @@ const LAYERS = [
           "images/lunara/fieldteam_10566_82636_httpss.mj.runb-pie0TStmg_contemporary_m_476dd2ca-2f1b-448f-ba6a-1a6d12fe3557_0.png",
           "images/lunara/fieldteam_10566_82636_httpss.mj.run-ER96E8_cDo_close-up_conte_c220ba10-353d-4b65-9e64-1dcbd606c2bf_2.png",
         ] },
-        { type: "media", src: "images/lunara/fieldteam_10566_82636_Full-body_view_of_a_single_elegant_fema_fd5b5a55-358c-41cb-a169-7a0a9fcef89d_0.png" },
         { type: "duo", srcs: [
           "images/lunara/Artboard-1.jpg",
           "images/lunara/Artboard-1-1.jpg",
@@ -995,7 +998,7 @@ const LAYERS = [
       credits: { "For": "Self-initiated", "Year": "2025",
         "Role": "Concept, 3D, Interaction Design" } },
     { title: "ON — Not Faster, Better", num: "06", year: "2025",
-      image: "images/on/1.jpg",
+      image: "images/on/product_shot.png",
       gradient: "linear-gradient(150deg,#fae2ca,#f2c9b8 60%,#eec0c8)",
       description: "Reframing time as a medium, not a metric — conceived for ON's D&AD brief.",
       body: `<p>Not Faster — Better reframes time as a medium, not a metric.</p>
@@ -1161,11 +1164,19 @@ const LAYERS = [
           a single motion language that holds whatever it's asked to carry.
           These explorations consider how that translates to web, in both
           behaviour and format.</p>` },
+        { type: "duo", srcs: [
+          "images/xsolla/nice_motion/03.mp4",
+          "images/xsolla/nice_motion/04.mp4",
+        ] },
         { type: "text", html: `<p>Another workaround came through rotation,
           turning the box just before its rear structure would have been
           caught by the 3D scanning growth effect. This preserved the
           integrity of the original form without resorting to layering, which
           was always treated as a last option anyway.</p>` },
+        { type: "duo", flip: true, srcs: [
+          "images/xsolla/nice_motion/01.mp4",
+          "images/xsolla/nice_motion/02.mp4",
+        ] },
         { type: "text", html: `<p>Early stage testing and ideation.</p>` },
         { type: "grid", cols: 6, srcs: [
           "images/xsolla/materiality_3.mp4",
@@ -1258,6 +1269,7 @@ function build() {
 function layout() {
   const W = stage.clientWidth;
   const H = stage.clientHeight;
+  if (!W || !H) return;   // stage hidden (mobile view) — sizes are meaningless
   const mx = Math.max(40, W * 0.075);   // horizontal margin
   const my = Math.max(30, H * 0.08);    // vertical margin
   const cols = LAYERS.length;
@@ -1400,8 +1412,12 @@ function renderPage(node) {
       } else if (s.align === "center") {
         html += block;             /* stays centred, no side alternation */
       } else {
-        const side = sideCount++ % 2 ? "alt-right" : "alt-left";
-        html += block.replace('class="media"', 'class="media ' + side + '"');
+        /* side: "left"/"right" forces a side; edge: true bleeds to the
+           viewport edge on that side */
+        const side = s.side ? "alt-" + s.side
+          : (sideCount++ % 2 ? "alt-right" : "alt-left");
+        html += block.replace('class="media"',
+          'class="media ' + side + (s.edge ? " edge" : "") + '"');
       }
       firstMedia = false;
     }
@@ -1481,7 +1497,7 @@ function openAbout(push = true) {
   currentSlug = "about";
   showPage(
     `<div class="topline"><h1>About</h1>` +
-    `<span class="client">London, UK</span></div>` +
+    `<span class="client">Sydney, AUS</span></div>` +
     `<div class="section-text about">${SETTINGS.about}</div>`);
   setActive(navAbout);
   if (push) location.hash = "/about";
@@ -1578,11 +1594,21 @@ function fitTitles() {
 build();
 
 /* ---------- mobile home: stacked tendril-style project index ---------- */
+const MOBILE_ORDER = [
+  "Xsolla",
+  "Taste is our scarcest asset",
+  "Lunara",
+  "Spaces That Listen",
+  "ON — Not Faster, Better",
+  "Every Which Way",
+  "Permeable",
+  "Retainer Theory",
+];
 (function buildMobileHome() {
   const host = document.getElementById("mobile-home");
   if (!host) return;
   LAYERS.flat().slice()
-    .sort((a, b) => (b.num || "").localeCompare(a.num || ""))  // newest first
+    .sort((a, b) => MOBILE_ORDER.indexOf(a.title) - MOBILE_ORDER.indexOf(b.title))
     .forEach(node => {
       const t = document.createElement("div");
       t.className = "m-tile";
@@ -1600,6 +1626,15 @@ if (document.fonts && document.fonts.ready)
 else fitTitles();
 route(false);                       // open deep link if present
 window.addEventListener("resize", () => { layout(); fitTitles(); placeSoundBtns(); });
+
+/* re-layout cleanly when crossing the mobile/desktop breakpoint */
+const mobileMQ = window.matchMedia("(max-width: 820px)");
+(mobileMQ.addEventListener
+  ? mobileMQ.addEventListener.bind(mobileMQ, "change")
+  : mobileMQ.addListener.bind(mobileMQ))(() => {
+  hideDetail();
+  requestAnimationFrame(() => { layout(); fitTitles(); placeSoundBtns(); });
+});
 </script>
 </body>
 </html>
