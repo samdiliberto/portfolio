@@ -615,7 +615,7 @@
   <div class="rule"></div>
   <a id="nav-about">About</a>
   <div class="rule"></div>
-  <a id="nav-code" target="_blank" rel="noopener">Code</a>
+  <a id="nav-code">Code</a>
   <div class="rule short"></div>
 </header>
 
@@ -1445,10 +1445,11 @@ function renderPage(node) {
 /* ---------- page navigation (hash-routed, feels like separate pages) --- */
 const navWork  = document.getElementById("nav-work");
 const navAbout = document.getElementById("nav-about");
+const navCode  = document.getElementById("nav-code");
 let currentSlug = "";
 
 function setActive(el) {
-  [navWork, navAbout].forEach(a => a.classList.toggle("active", a === el));
+  [navWork, navAbout, navCode].forEach(a => a.classList.toggle("active", a === el));
 }
 
 function slugOf(t) {
@@ -1493,6 +1494,87 @@ function openProject(node, push = true) {
   if (push) location.hash = "/" + currentSlug;
 }
 
+/* ---------- Code page — designed like the work pages ---------- */
+const CODE_NODE = {
+  title: "Code", client: "Learning log", noBleed: true,
+  page: [
+    { type: "text", html: `<p>I'm sure we all have multiple aliases and
+      titles that others attach to us throughout our careers. There's a
+      saying that goes something like, your career is in the eye of the
+      beholder. I guess that is the beauty, haha. I don't quite know what
+      mine is yet, but gravitationally there is this inert sense of pull
+      from creating technology that makes a profound difference in
+      someone's life. A tool that helps someone cross a deep foresty
+      mountainous terrain, and lets them see it clearly, openly, and gain
+      a deeper connection to ones inner self. New ways to think and
+      perceive the tangible, beyond what sits at the edge of vision,
+      reaching what we can't see but still feel.</p>
+      <p>However, to not get too philosophical, I set out to learn machine
+      learning, deep learning, as far into the iceberg as I can go. What
+      is truly exciting is not knowing where this will lead me. The work
+      might not take me far, but, willingly and hopefully it will help me
+      grasp how systems work, and how we connect to technology and
+      everything around us, all the way down to the bottom of the ocean,
+      to the trough of this so-called iceberg.</p>
+      <p>Just to prephis all learning and code experiments are done
+      without the aid of a.i to truly understand what is going on under
+      the hood.</p>` },
+    { type: "text", heading: "Project 1 (Comparing text passages)",
+      html: `<p>First larger project — whilst learning the fundamentals in
+      python, creating a system that compares texts and creates a
+      statistic report, completed this without use of numpy and pandas as
+      I wanted to understand what the shortcut syntax used in those
+      modules were actually doing, for example getting averages of word
+      lengths or word count in each texts or manually adding tokens to a
+      dictionary instead of pandas doing this automatically.</p>` },
+    { type: "media", align: "center", src: "images/code/text_statistics.mp4" },
+    { type: "text", heading: "Project 2 (Data Cleaning)",
+      html: `<p>We then moved on to using pandas to organize and calculate
+      kpi values for a coffee shop from a large data set from kaggle,
+      learning to load csv files using methods that instead of killing the
+      program if a file can't be found instead gives the user an error
+      message prompting for a check.</p>` },
+    { type: "media", src: "images/code/Screenshot-2026-06-26-at-14.46.39.png" },
+    { type: "text", html: `<p>Using a config file which the main python
+      file uses so changes apply globally. By pulling these out into a
+      separate JSON file, the pipeline code stays generic and reusable.
+      Using a unique function to give a list of names and payments I was
+      able to make these maps that allowed me to alter incorrect naming
+      methods in the csv. Pandas has a load of nifty little shortcuts
+      which knocked the code down substantially — using pd.to_numeric to
+      convert from string to int so I can perform calculations on the
+      data is just one of the examples of methods I used — then saving the
+      cleaned csv to a new file so it is readily usable for performing
+      calculations on.</p>` },
+    { type: "media", src: "images/code/Screenshot-2026-06-26-at-14.49.37.png" },
+    { type: "duo", srcs: [
+      "images/code/Screenshot-2026-06-26-at-14.53.36.png",
+      "images/code/Screenshot-2026-06-26-at-14.53.43.png",
+    ] },
+    { type: "text", heading: "Project 3 (Linear regression model)",
+      html: `<p>Our first machine learning model utilised a linear
+      regression model to calculate a prediction for house prices in a
+      number of years, all dependent on square footage, age of house,
+      where the house is located e.t.c. All these previous pieces of data
+      on neighbouring houses in different areas allowed me to create a
+      train test split — in this case I think I used an equal train test
+      split. This project is where I probably learnt the most in terms of
+      utilising what I had learnt previously, like cleaning up data and in
+      this case for example splitting data into separate columns like
+      city, rural, suburbs — all examples of working with and handling
+      data.</p>` },
+    { type: "media", src: "images/code/Screenshot-2026-06-26-at-15.04.43.png" },
+    { type: "media", src: "images/code/Screenshot-2026-06-26-at-15.04.50.png" },
+  ],
+};
+
+function openCode(push = true) {
+  currentSlug = "code";
+  showPage(renderPage(CODE_NODE));
+  setActive(navCode);
+  if (push) location.hash = "/code";
+}
+
 function openAbout(push = true) {
   currentSlug = "about";
   showPage(
@@ -1518,7 +1600,7 @@ document.addEventListener("keydown", e => {
 });
 
 setActive(navWork);
-document.getElementById("nav-code").href = SETTINGS.codeUrl;
+navCode.addEventListener("click", () => openCode());
 navWork.addEventListener("click", () => closePage());
 navAbout.addEventListener("click", () => openAbout());
 
@@ -1528,6 +1610,7 @@ function route(push) {
   if (!s) { if (currentSlug) closePage(false); return; }
   if (s === currentSlug) return;
   if (s === "about") { openAbout(push); return; }
+  if (s === "code")  { openCode(push);  return; }
   const f = flat.find(f => slugOf(f.node.title) === s);
   if (f) openProject(f.node, push);
 }
