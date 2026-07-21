@@ -189,6 +189,16 @@
     border-color: rgba(255,255,255,0.7);
   }
   .neuron .head .n { display: none; }
+  /* client credit — bottom-right corner, plain text (no pill) */
+  .neuron .corner {
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+    z-index: 2;
+    font-family: var(--font-card);
+    font-size: 9px;
+    letter-spacing: 0.03em;
+  }
   .neuron .thumb {
     position: absolute;
     inset: 0;
@@ -778,6 +788,7 @@ const LAYERS = [
   // ---- HIDDEN LAYER (2025) ----
   [
     { title: "Taste is our scarcest asset", num: "03", year: "2025", client: "FIELD.IO",
+      clientColor: "#a05c30",
       image: "images/taste/fieldteam_10566_82636_httpss.mj.run1Is46tSrmyI_Close-up_art-dir_d7eeedf3-0778-4b27-9f7b-16a89df59791.jpg",
       gradient: "linear-gradient(150deg,#eecfd8,#e0c2e4 60%,#d0bcea)",
       description: "Visuals for FIELD's essay on discernment in the age of machine-generated content — finding the diamond in the dirt.",
@@ -851,6 +862,7 @@ const LAYERS = [
       credits: { "For": "FIELD.IO", "Year": "2025",
         "Role": "Visual Direction, 3D, Social Strategy" } },
     { title: "Spaces That Listen", num: "04", year: "2025", client: "FIELD.IO",
+      clientColor: "#9db9ff",
       image: "images/spaces/fieldteam_10566_82636_httpss.mj.runm8PiqS_fRko_showing_shimmeri_ac337acd-686f-4e01-a6b1-1b293ce77bea.png",
       tone: "light",
       heroCrop: true,   // square hero crops to a banner on this page
@@ -1069,7 +1081,27 @@ const LAYERS = [
   ],
   // ---- OUTPUT LAYER (ongoing) ----
   [
+    { title: "3D", num: "09", year: "Ongoing",
+      image: "images/3d/art-directed_studio_composition_of_a_sculptural_object_formed_from_smooth_reflective_aluminium-like_p601enseemwpejf9ubqo_1.png",
+      tone: "light",
+      gradient: "linear-gradient(135deg,#e3e8f1,#d3dcec 55%,#c4cfe6)",
+      description: "A growing collection of 3D explorations — studies in form, material, light and motion.",
+      body: `<p>A growing collection of 3D explorations — studies in form,
+        material, light and motion.</p>`,
+      page: [
+        { type: "text", html: `<p>A growing collection of 3D explorations —
+          studies in form, material, light and motion. New work lands here
+          as it's made.</p>` },
+        { type: "media", src: "images/3d/car_land_2.jpg" },
+        { type: "media", side: "left", edge: true,
+          src: "images/3d/car_land_3.jpg" },
+        { type: "media", side: "right",
+          src: "images/3d/landscape.jpg" },
+        { type: "media", src: "images/3d/art-directed_studio_composition_of_a_sculptural_object_formed_from_smooth_reflective_aluminium-like_p601enseemwpejf9ubqo_1.png" },
+        { type: "media", src: "images/3d/zunc.studio_macro_close-up_of_a_glowing_glass_display_panel_l_a92526a2-a593-4f68-8b92-c7109f98c9e7_0.png" },
+      ] },
     { title: "Xsolla", num: "08", year: "2026 · Ongoing", client: "Pentagram",
+      clientColor: "#6fd9d2",
       image: "images/xsolla/3D Symbol.png",
       tone: "dark",
       gradient: "linear-gradient(135deg,#f9ddc0,#eebfce 55%,#c5bcf0)",
@@ -1236,6 +1268,7 @@ function build() {
       el.className = "neuron";
       el.innerHTML = `<div class="card">
                         <div class="head"><span class="t">${node.title}</span><span class="n">${node.num}</span></div>
+                        ${node.clientColor ? `<span class="corner" style="color:${node.clientColor}">${node.client}</span>` : ""}
                         <div class="thumb">${media(node)}</div>
                       </div>`;
       // organic float: varied duration + phase per node
@@ -1552,7 +1585,7 @@ const CODE_NODE = {
       "images/code/Screenshot-2026-06-26-at-14.53.43.png",
     ] },
     { type: "text", heading: "Project 3 (Linear regression model)",
-      html: `<p>My first machine learning model utilised a linear
+      html: `<p>Our first machine learning model utilised a linear
       regression model to calculate a prediction for house prices in a
       number of years, all dependent on square footage, age of house,
       where the house is located e.t.c. All these previous pieces of data
@@ -1679,6 +1712,7 @@ build();
 /* ---------- mobile home: stacked tendril-style project index ---------- */
 const MOBILE_ORDER = [
   "Xsolla",
+  "3D",
   "Taste is our scarcest asset",
   "Lunara",
   "Spaces That Listen",
