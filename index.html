@@ -322,6 +322,14 @@
     margin: 0 0 var(--page-gap);
   }
   #overlay .section-text strong { font-weight: 500; }
+  /* small note/caption under a title (e.g. "(updated branding)") */
+  #overlay .section-text.note {
+    font-size: 15px;
+    letter-spacing: 0;
+    color: var(--ink-soft);
+    margin-top: -60px;
+    margin-bottom: 40px;
+  }
   #overlay .section-text p + p { margin-top: 1em; }
   #overlay .section-text a { color: var(--ink); }
   /* section heading line inside a text block (random.studio-style) */
@@ -725,6 +733,8 @@ const LAYERS = [
         internal states, which are represented in a digital neural network.</p>
         <p>Photos: user testing at exhibition @ Millbank Tower.</p>`,
       page: [
+        { type: "text", note: true, html: `<p>(updated branding)</p>` },
+        { type: "media", src: "images/perm/permeable home screen.png" },
         { type: "text", html: `<p>Permeable is an interactive experience
           that explores the intricate relationship between emotion and
           memory, emphasizing how emotional states — especially those tied to
@@ -1002,7 +1012,7 @@ const LAYERS = [
           "images/lunara/Artboard-1-1.jpg",
         ] },
         { type: "duo", flip: true, srcs: [
-          "images/lunara/Slide 16_9 - 18.png",
+          "images/lunara/Slide 16_9 - 18_zoom.png",
           "images/lunara/Frame 4.png",
         ] },
         { type: "duo", srcs: [
@@ -1446,7 +1456,7 @@ function renderPage(node) {
   let sideCount = 0;              // alternates standalone media left/right
   sections.forEach(s => {
     if (s.type === "text")
-      html += `<div class="section-text">` +
+      html += `<div class="section-text${s.note ? " note" : ""}">` +
         (s.heading ? `<span class="sec-head">${s.heading}</span>` : "") +
         `${s.html}</div>`;
     else if (s.type === "media") {
